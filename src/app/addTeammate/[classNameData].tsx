@@ -9,21 +9,23 @@ import {
   Text,
   Alert
 } from "react-native";
-import { useClasses } from "@context/classes";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import Header from "@components/Header/header";
 import Title from "@components/Title/Tittle";
 import Subtitle from "@components/Subtitle/Subtitle";
 import Button from "@components/Button/Button";
 import Tabs from "@components/Tabs/Tabs";
 import Participant from "@components/Participant/Participant";
-import Ionicons from "@expo/vector-icons/Ionicons";
+import { ClassEntity } from "@common/types/ClassEntity";
+import { storage } from "@/services/storage";
 
 export default function AddTeammate() {
   const router = useRouter();
   const { classNameData } = useLocalSearchParams<{ classNameData: string }>();
-  const { setClasses, classes } = useClasses();
 
   const [activeTeam, setActiveTeam] = useState<"TIME A" | "TIME B">("TIME A");
+
+  const classes = storage.getObject<ClassEntity[]>("classes") ?? [];
   const [participant, setParticipant] = useState<string>("");
   const currentClass = classes.find((item) => item.name === classNameData);
   const currentTeamParticipants =
@@ -35,7 +37,8 @@ export default function AddTeammate() {
   }
 
   const handleRemoveClass = (name: string) => {
-    setClasses((prev) => prev.filter((c) => name !== c.name));
+    const newClasses = classes.filter((c) => name !== c.name);
+    storage.setObject<ClassEntity[]>("classes", newClasses);
   };
 
   const handleAddParticipant = (
@@ -43,23 +46,21 @@ export default function AddTeammate() {
     currentTeam: "TIME A" | "TIME B"
   ) => {
     if (currentTeam === "TIME A") {
-      setClasses((prev) =>
-        prev.map((classData) =>
-          classData.name === classNameData
-            ? { ...classData, teamA: [...classData.teamA, name] }
-            : classData
-        )
+      const newClasses = classes.map((classData) =>
+        classData.name === classNameData
+          ? { ...classData, teamA: [...classData.teamA, name] }
+          : classData
       );
+      storage.setObject<ClassEntity[]>("classes", newClasses);
       setParticipant("");
     }
     if (currentTeam === "TIME B") {
-      setClasses((prev) =>
-        prev.map((classData) =>
-          classData.name === classNameData
-            ? { ...classData, teamB: [...classData.teamB, name] }
-            : classData
-        )
+      const newClasses = classes.map((classData) =>
+        classData.name === classNameData
+          ? { ...classData, teamB: [...classData.teamB, name] }
+          : classData
       );
+      storage.setObject<ClassEntity[]>("classes", newClasses);
       setParticipant("");
     }
   };
@@ -69,28 +70,26 @@ export default function AddTeammate() {
     currentTeam: "TIME A" | "TIME B"
   ) => {
     if (currentTeam === "TIME A") {
-      setClasses((prev) =>
-        prev.map((classData) =>
-          classData.name === classNameData
-            ? {
-                ...classData,
-                teamA: classData.teamA.filter((teammate) => teammate !== name)
-              }
-            : classData
-        )
+      const newClasses = classes.map((classData) =>
+        classData.name === classNameData
+          ? {
+              ...classData,
+              teamA: classData.teamA.filter((teammate) => teammate !== name)
+            }
+          : classData
       );
+      storage.setObject<ClassEntity[]>("classes", newClasses);
     }
     if (currentTeam === "TIME B") {
-      setClasses((prev) =>
-        prev.map((classData) =>
-          classData.name === classNameData
-            ? {
-                ...classData,
-                teamB: classData.teamB.filter((teammate) => teammate !== name)
-              }
-            : classData
-        )
+      const newClasses = classes.map((classData) =>
+        classData.name === classNameData
+          ? {
+              ...classData,
+              teamB: classData.teamB.filter((teammate) => teammate !== name)
+            }
+          : classData
       );
+      storage.setObject<ClassEntity[]>("classes", newClasses);
     }
   };
 
@@ -133,7 +132,7 @@ export default function AddTeammate() {
               onPress={() => {
                 const error = validateParticipant(participant);
                 if (error) {
-                  Alert.alert(error.title, error.message);
+                  return Alert.alert(error.title, error.message);
                 }
                 handleAddParticipant(participant, activeTeam);
               }}

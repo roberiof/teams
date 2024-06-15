@@ -1,20 +1,21 @@
 import React, { useState } from "react";
 import { useRouter } from "expo-router";
 import { SafeAreaView, TextInput, View, Alert } from "react-native";
-import { useClasses } from "@context/classes";
 import Header from "@components/Header/header";
 import Title from "@components/Title/Tittle";
 import Subtitle from "@components/Subtitle/Subtitle";
 import Button from "@components/Button/Button";
+import { ClassEntity } from "@common/types/ClassEntity";
+import { storage } from "../../services/storage";
 
 export default function AddClass() {
   const router = useRouter();
-  const { setClasses, classes } = useClasses();
+  const classes = storage.getObject<ClassEntity[] | null>("classes");
   const [newClassName, setNewClassName] = useState<string>("");
 
   const handleAddClass = (newClassName: string) => {
-    setClasses((prev) => [
-      ...prev,
+    storage.setObject("classes", [
+      ...(classes ?? []),
       {
         name: newClassName,
         teamA: [],
@@ -31,7 +32,7 @@ export default function AddClass() {
       };
     }
 
-    const currentClassesNames = classes.map((item) => item.name);
+    const currentClassesNames = (classes ?? []).map((item) => item.name);
     if (currentClassesNames.includes(newClassName)) {
       return {
         title: "Nome inválido",

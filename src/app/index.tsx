@@ -1,15 +1,16 @@
 import { Text, View, FlatList, SafeAreaView } from "react-native";
 import { useRouter } from "expo-router";
-import { useClasses } from "@context/classes";
 import React from "react";
 import Header from "@components/Header/header";
 import Title from "@components/Title/Tittle";
 import Subtitle from "@components/Subtitle/Subtitle";
 import Button from "@components/Button/Button";
+import { storage } from "@/services/storage";
+import { ClassEntity } from "@common/types/ClassEntity";
 import ClassComponent from "./components/ClassComponent";
 
 export default function Home() {
-  const { classes } = useClasses();
+  const classes = storage.getObject<ClassEntity[]>("classes");
   const router = useRouter();
 
   return (

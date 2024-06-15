@@ -7,7 +7,6 @@
       "@assets/*": ["./assets/*"],
       "@components/*": ["./src/components/*"],
       "@common/*": ["./src/common/*"],
-      "@context/*": ["./src/context/*"]
     }
   },
 }
